@@ -62,23 +62,15 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack {
+            
             List {
-                ForEach(expenses.items) { item in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(item.name)
-                                .font(.headline)
-                            Text(item.type)
-                                .font(.caption)
-                        }
-                        
-                        Spacer()
-                        //Text(item.amount, format: .currency(code: expenses.currencyType))
-                        expenseAmountTextView(expenseItem: item, currencyCode: expenses.currencyType)
-                    }
+                Section("Personal Expenses") {
+                    expenseItems(expenseType: "Personal")
                 }
-                .onDelete { offset in
-                    removeItems(at: offset)
+                
+                
+                Section("Business Expenses") {
+                    expenseItems(expenseType: "Business")
                 }
             }
             .navigationTitle("iExpense")
@@ -101,9 +93,49 @@ struct ContentView: View {
             .sheet(isPresented: $showSettings) {
                 SettingsView(expenses: expenses)
             }
+            
+//            List {
+//                ForEach(expenses.items) { item in
+//                    HStack {
+//                        VStack(alignment: .leading) {
+//                            Text(item.name)
+//                                .font(.headline)
+//                            Text(item.type)
+//                                .font(.caption)
+//                        }
+//                        
+//                        Spacer()
+//                        expenseAmountTextView(expenseItem: item, currencyCode: expenses.currencyType)
+//                    }
+//                }
+//                .onDelete { offset in
+//                    removeItems(at: offset)
+//                }
+//            }
         }
     }
     
+    func expenseItems(expenseType: String) -> some View {
+        ForEach(expenses.items) { item in
+            
+            if (item.type == expenseType) {
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text(item.name)
+                            .font(.headline)
+                        Text(item.type)
+                            .font(.caption)
+                    }
+                    
+                    Spacer()
+                    expenseAmountTextView(expenseItem: item, currencyCode: expenses.currencyType)
+                }
+            }
+        }
+        .onDelete { offset in
+            removeItems(at: offset)
+        }
+    }
     
     func expenseAmountTextView(expenseItem: ExpenseItem, currencyCode: String) -> some View {
         
