@@ -49,6 +49,7 @@ struct AddView: View {
                     .foregroundStyle(.red)
                 }
             }
+            .navigationBarBackButtonHidden()
         }
     }
 }

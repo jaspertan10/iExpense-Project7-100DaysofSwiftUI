@@ -76,9 +76,16 @@ struct ContentView: View {
             .navigationTitle("iExpense")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                Button("Add Expense", systemImage: "plus") {
-                    showingAddExpense = true
+                NavigationLink {
+                    AddView(expenses: expenses)
+                } label: {
+                    //View
+                    Image(systemName: "plus")
                 }
+
+//                Button("Add Expense", systemImage: "plus") {
+//                    showingAddExpense = true
+//                }
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
