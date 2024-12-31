@@ -12,51 +12,41 @@ struct ContentView: View {
     
     /* Sheets view states */
     @State private var showingAddExpense = false
-
-    @Environment(\.modelContext) var modelContext
-    @Query var expenses: [Expense]
+    
+    
+    //Order of sort for expenses
+    @State private var sortOrder = [
+        SortDescriptor(\Expense.name),
+        SortDescriptor(\Expense.type),
+    ]
+    
+    @State private var expenseType: String = "Personal"
     
     var body: some View {
         NavigationStack {
             
-            List {
-                ForEach(expenses) { expense in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(expense.name)
-                                .font(.headline)
-                            
-                            Text(expense.type)
-                                .font(.caption)
-                        }
-                        Spacer()
-                        expenseAmountTextView(expenseItem: expense)
-                    }
-                }
-                .onDelete(perform: removeItems)
-            }
-            
-//            List {
-//                ForEach(expenses) { item in
-//                    HStack {
-//                        VStack(alignment: .leading) {
-//                            Text(item.name)
-//                                .font(.headline)
-//                            Text(item.type)
-//                                .font(.caption)
-//                        }
-//
-//                        Spacer()
-//                        expenseAmountTextView(expenseItem: item, currencyCode: expenses.currencyType)
-//                    }
-//                }
-//                .onDelete { offset in
-//                    removeItems(at: offset)
-//                }
-//            }
+            ExpenseView(expenseType: expenseType, sortOrder: sortOrder)
             .navigationTitle("iExpense")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu("Sort", systemImage: "arrow.up.arrow.down") {
+                        Picker("Sort", selection: $sortOrder) {
+                            Text("Sort by Name")
+                                .tag([
+                                    SortDescriptor(\Expense.name),
+                                    SortDescriptor(\Expense.type),
+                                ])
+                            
+                            Text("Sort by Price")
+                                .tag([
+                                    SortDescriptor(\Expense.amount),
+                                    SortDescriptor(\Expense.type),
+                                ])
+                        }
+                    }
+                }
+                
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationLink {
                         AddView()
@@ -69,6 +59,19 @@ struct ContentView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     EditButton()
                 }
+                
+                ToolbarItem(placement: .topBarLeading) {
+                    if (expenseType == "Personal") {
+                        Button("Business Expenses", systemImage: "briefcase.fill") {
+                            expenseType = "Business"
+                        }
+                    }
+                    else if (expenseType == "Business") {
+                        Button("Personal Expenses", systemImage: "house.fill") {
+                            expenseType = "Personal"
+                        }
+                    }
+                }
             }
             .sheet(isPresented: $showingAddExpense) {
                 AddView()
@@ -76,34 +79,6 @@ struct ContentView: View {
         }
     }
     
-    func expenseAmountTextView(expenseItem: Expense) -> some View {
-        
-        var color: Color = .green
-        
-        if (expenseItem.amount <= 10) {
-            color = .green
-        }
-        else if (expenseItem.amount <= 100) {
-            color = .orange
-        }
-        else {
-            color = .red
-        }
-        
-        return (Text(expenseItem.amount, format: .currency(code: expenseItem.currencyCode))
-            .foregroundStyle(color))
-    }
-    
-    func removeItems(at offsets: IndexSet) {
-        for offset in offsets {
-            
-            // find this book in our query
-            let expense = expenses[offset]
-            
-            // delete it from the context
-            modelContext.delete(expense)
-        }
-    }
 }
 
 #Preview {
